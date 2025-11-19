@@ -7,7 +7,7 @@ exports.handler = async (event) => {
     const params = {
       TableName: "HelloWorld",
       Item: {
-        SomeKey: { S: "test" + Date.now().toString },
+        SomeKey: { S: "test" + Date.now().toString() },
       },
     };
 
