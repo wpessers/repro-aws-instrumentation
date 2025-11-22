@@ -72,3 +72,41 @@ resource "aws_iam_role_policy" "working_function_role_policy" {
   policy = data.aws_iam_policy_document.working_function_policy.json
   role   = module.working_function.execution_role_id
 }
+
+# ============================================================================
+# Infra to create the lambda function with patched instrumentation layer
+# ============================================================================
+
+module "patched_function" {
+  source = "./modules/otel-lambda"
+
+  name     = "patched-function"
+  filename = "../lambda.zip"
+  handler  = "index.handler"
+
+  enabled_instrumentations = "undici"
+
+  instrumentation_layer_arn = aws_lambda_layer_version.old_otel_layer.arn
+}
+
+data "aws_iam_policy_document" "patched_function_policy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+    resources = ["${module.patched_function.log_group_arn}:*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:PutItem"
+    ]
+    resources = [aws_dynamodb_table.hello_world.arn]
+  }
+}
+
+resource "aws_iam_role_policy" "patched_function_role_policy" {
+  name   = "patched-function-lambda-policy"
+  policy = data.aws_iam_policy_document.patched_function_policy.json
+  role   = module.patched_function.execution_role_id
+}
