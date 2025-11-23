@@ -29,7 +29,7 @@ resource "aws_lambda_function" "lambda_function" {
   handler          = var.handler
   source_code_hash = filebase64sha256(var.filename)
 
-  runtime       = "nodejs20.x"
+  runtime       = "nodejs22.x"
   architectures = ["arm64"]
 
   layers = [
@@ -45,6 +45,7 @@ resource "aws_lambda_function" "lambda_function" {
     variables = merge(
       {
         AWS_LAMBDA_EXEC_WRAPPER = "/opt/otel-handler"
+        DEBUG                   = "require-in-the-middle"
         OTEL_TRACES_EXPORTER    = "otlp"
         OTEL_METRICS_EXPORTER   = "none"
         OTEL_LOGS_EXPORTER      = "none"
