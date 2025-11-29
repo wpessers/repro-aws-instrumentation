@@ -29,7 +29,7 @@ resource "aws_lambda_function" "lambda_function" {
   handler          = var.handler
   source_code_hash = filebase64sha256(var.filename)
 
-  runtime       = "nodejs22.x"
+  runtime       = "nodejs24.x"
   architectures = ["arm64"]
 
   layers = [
